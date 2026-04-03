@@ -1,11 +1,18 @@
 import Text from '../components/Text/Text';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import Form from '../components/Form/Form';
 import TodoList from '../components/TodoList/TodoList';
 
 const Todos = () => {
-  const [todos, setTodos] = useState([]);
+  const [todos, setTodos] = useState(() => {
+    const data = localStorage.getItem('todos');
+    return data ? JSON.parse(data) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('todos', JSON.stringify(todos));
+  }, [todos]);
 
   const addTodo = e => {
     e.preventDefault();
@@ -26,11 +33,15 @@ const Todos = () => {
     e.target.reset();
   };
 
+  const deleteTodo = id => {
+    setTodos(prevTodo => prevTodo.filter(todo => todo.id !== id));
+  };
+
   return (
     <>
       <Text textAlign="center">There are no any todos ...</Text>
       <Form onSubmit={addTodo} />
-      <TodoList array={todos} />
+      <TodoList array={todos} onDelete={deleteTodo} />
     </>
   );
 };
